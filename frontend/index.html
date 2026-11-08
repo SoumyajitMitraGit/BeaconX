@@ -1,1 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeaconX Live Sync</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Import Quill Editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>BeaconX Terminal</h2>
+            <span id="connection-status">🟡 Connecting...</span>
+        </div>
+        
+        <!-- This is where the collaborative editor will live -->
+        <div id="editor"></div>
+    </div>
 
+    <!-- Import Quill Editor JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- Import your app logic as an ES Module -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,1 +1,48 @@
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
 
+.container {
+    width: 80%;
+    max-width: 900px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+#connection-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background-color: #f39c12;
+    color: #111;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#editor {
+    height: 500px;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 0 0 8px 8px;
+    font-size: 16px;
+}
+
+/* Customize the Quill toolbar for dark mode */
+.ql-toolbar {
+    background-color: #2c2c2c;
+    border: 1px solid #333 !important;
+    border-radius: 8px 8px 0 0;
+}
+.ql-stroke { stroke: #e0e0e0 !important; }
+.ql-fill { fill: #e0e0e0 !important; }
+.ql-picker { color: #e0e0e0 !important; }
