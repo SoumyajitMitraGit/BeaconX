@@ -5,7 +5,7 @@ import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 const statusElement = document.getElementById('connection-status');
 let connectedClients = 0;
 
-// Register the cursors plugin with Quill
+// Register the cursors plugin
 Quill.register('modules/cursors', window.QuillCursors);
 
 function createClient(editorSelector, clientName, cursorColor) {
@@ -17,7 +17,7 @@ function createClient(editorSelector, clientName, cursorColor) {
         ydoc
     );
 
-    // Tell Yjs who this user is and what color their cursor should be
+    // Keep the Canva-style floating cursors active
     provider.awareness.setLocalStateField('user', {
         name: clientName,
         color: cursorColor
@@ -27,14 +27,29 @@ function createClient(editorSelector, clientName, cursorColor) {
         theme: 'snow',
         modules: { 
             toolbar: [['bold', 'italic', 'underline'], ['code-block']],
-            cursors: true // Turn on the live cursors module
+            cursors: true 
         }
     });
 
     const ytext = ydoc.getText('quill');
-    
-    // The binding automatically syncs both the text AND the cursor positions
     const binding = new QuillBinding(ytext, quill, provider.awareness);
+
+    // NEW: Intercept the Enter key to permanently stamp the user's name
+    quill.keyboard.addBinding({ key: 13 }, function(range, context) {
+        const prefix = '\n' + clientName + ': ';
+        
+        // Insert the new line and the user's name
+        quill.insertText(range.index, prefix, 'user');
+        
+        // Make the name bold so it stands out
+        quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
+        
+        // Move the cursor to the end of the name and switch back to normal text
+        quill.setSelection(range.index + prefix.length, 0, 'user');
+        quill.format('bold', false, 'user');
+        
+        return false; // Prevent default Enter key behavior
+    });
 
     provider.on('status', event => {
         if (event.status === 'connected') {
@@ -53,6 +68,6 @@ function createClient(editorSelector, clientName, cursorColor) {
     });
 }
 
-// Instantiate with names and unique hex colors for the cursors
+// Instantiate with names and cursor colors
 createClient('#editor-1', 'Soumyajit', '#3498db'); 
 createClient('#editor-2', 'Ahin', '#e74c3c');
