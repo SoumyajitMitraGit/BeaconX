@@ -1,10 +1,12 @@
 import * as Y from 'https://esm.sh/yjs';
 import { WebsocketProvider } from 'https://esm.sh/y-websocket?deps=yjs';
+import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 
 const statusElement = document.getElementById('connection-status');
 let connectedClients = 0;
 
-function createClient(editorSelector) {
+// We added 'clientName' as a parameter to know who is typing
+function createClient(editorSelector, clientName) {
     const ydoc = new Y.Doc();
     
     const provider = new WebsocketProvider(
@@ -18,34 +20,28 @@ function createClient(editorSelector) {
         modules: { toolbar: [['bold', 'italic', 'underline'], ['code-block']] }
     });
 
-    // 1. Create a shared Yjs Map to hold the document state instead of a live text binding
-    const sharedData = ydoc.getMap('state');
+    // 1. Re-enable the real-time character-by-character sync!
+    const ytext = ydoc.getText('quill');
+    const binding = new QuillBinding(ytext, quill, provider.awareness);
 
-    // 2. Listen for when another client presses Enter and broadcasts their data
-    sharedData.observe(() => {
-        const incomingDelta = sharedData.get('content');
-        if (incomingDelta) {
-            // Update this editor with the incoming formatted text
-            quill.setContents(incomingDelta);
-        }
-    });
-
-    // 3. Intercept the Enter key to trigger the manual sync
-    quill.keyboard.addBinding({ key: 'Enter' }, function(range, context) {
-        // First, add the visual newline locally so the user can keep typing
-        quill.insertText(range.index, '\n');
+    // 2. Automatically inject the client's name when they press Enter
+    quill.keyboard.addBinding({ key: 13 }, function(range, context) {
+        // Create the prefix (e.g., "\nClient A: ")
+        const prefix = '\n' + clientName + ': ';
         
-        // Then, grab the entire document contents (including bold/italic formatting)
-        const currentContents = quill.getContents();
+        // Insert it at the current cursor position and make the name bold
+        quill.insertText(range.index, prefix, 'bold', true);
         
-        // Push it to the shared Yjs Map, which instantly broadcasts it to the other client
-        sharedData.set('content', currentContents);
+        // Move the user's cursor to the end of the new prefix so they can start typing
+        quill.setSelection(range.index + prefix.length);
         
-        // Return false to prevent Quill's default Enter key behavior since we just handled it
+        // Turn off bold so their actual message is regular text
+        quill.format('bold', false);
+        
         return false; 
     });
 
-    // Connection status UI tracking
+    // Connection status tracking
     provider.on('status', event => {
         if (event.status === 'connected') {
             connectedClients++;
@@ -63,5 +59,6 @@ function createClient(editorSelector) {
     });
 }
 
-createClient('#editor-1');
-createClient('#editor-2');
+// Pass the names into the function so it knows how to prefix their messages
+createClient('#editor-1', 'Client A');
+createClient('#editor-2', 'Client B');
