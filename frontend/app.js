@@ -1,7 +1,7 @@
 // Import Yjs and the WebSocket provider directly via URL so you don't need npm
 import * as Y from 'https://esm.sh/yjs@13.6.1';
 import { WebsocketProvider } from 'https://esm.sh/y-websocket@1.5.0';
-import { QuillBinding } from 'https://esm.sh/y-quill@1.2.2';
+import { QuillBinding } from 'https://esm.sh/y-quill';
 
 // 1. Set up the Yjs document
 const ydoc = new Y.Doc();
