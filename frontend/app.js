@@ -1,19 +1,18 @@
-// Import Yjs and the WebSocket provider directly via URL so you don't need npm
-import * as Y from 'https://esm.sh/yjs@13.6.1';
-import { WebsocketProvider } from 'https://esm.sh/y-websocket@1.5.0';
-import { QuillBinding } from 'https://esm.sh/y-quill';
+// Add ?deps=yjs to force the CDN to share a single instance of Yjs
+import * as Y from 'https://esm.sh/yjs';
+import { WebsocketProvider } from 'https://esm.sh/y-websocket?deps=yjs';
+import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 
-// 1. Set up the Yjs document
 const ydoc = new Y.Doc();
 
-// 2. Connect to the live Render backend Ahin deployed
+// Notice the /ws at the end of the URL. 
+// y-websocket will automatically append /beaconx-demo-room to it!
 const provider = new WebsocketProvider(
-    'wss://beaconx-i2ow.onrender.com', 
-    'beaconx-demo-room', // Any clients in this same room will sync together
+    'wss://beaconx-i2ow.onrender.com/ws', 
+    'beaconx-demo-room',
     ydoc
 );
 
-// 3. Initialize the visual Quill Editor
 const quill = new Quill('#editor', {
     theme: 'snow',
     modules: {
@@ -25,11 +24,9 @@ const quill = new Quill('#editor', {
     }
 });
 
-// 4. Bind the Yjs document to the Quill Editor so it syncs keystrokes
 const ytext = ydoc.getText('quill');
 const binding = new QuillBinding(ytext, quill, provider.awareness);
 
-// 5. Update the UI based on connection status
 const statusElement = document.getElementById('connection-status');
 
 provider.on('status', event => {
