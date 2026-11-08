@@ -8,7 +8,6 @@ let connectedClients = 0;
 // Register the cursors plugin with Quill
 Quill.register('modules/cursors', window.QuillCursors);
 
-// Pass in the name and a specific color for each client
 function createClient(editorSelector, clientName, cursorColor) {
     const ydoc = new Y.Doc();
     
@@ -18,7 +17,7 @@ function createClient(editorSelector, clientName, cursorColor) {
         ydoc
     );
 
-    // 1. Tell Yjs who this user is and what color their cursor should be
+    // Tell Yjs who this user is and what color their cursor should be
     provider.awareness.setLocalStateField('user', {
         name: clientName,
         color: cursorColor
@@ -28,13 +27,13 @@ function createClient(editorSelector, clientName, cursorColor) {
         theme: 'snow',
         modules: { 
             toolbar: [['bold', 'italic', 'underline'], ['code-block']],
-            cursors: true // 2. Turn on the live cursors module
+            cursors: true // Turn on the live cursors module
         }
     });
 
     const ytext = ydoc.getText('quill');
     
-    // 3. The binding automatically syncs both the text AND the cursor positions
+    // The binding automatically syncs both the text AND the cursor positions
     const binding = new QuillBinding(ytext, quill, provider.awareness);
 
     provider.on('status', event => {
@@ -55,5 +54,5 @@ function createClient(editorSelector, clientName, cursorColor) {
 }
 
 // Instantiate with names and unique hex colors for the cursors
-createClient('#editor-1', 'Soumyajit', '#3498db'); // Blue cursor
-createClient('#editor-2', 'Ahin', '#e74c3c');      // Red cursor
+createClient('#editor-1', 'Client A', '#3498db'); 
+createClient('#editor-2', 'Client B', '#e74c3c');

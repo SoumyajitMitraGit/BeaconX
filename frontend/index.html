@@ -6,6 +6,9 @@
     <title>BeaconX Split-Screen Prototype</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <!-- NEW: Base styling for the floating cursors -->
+    <link href="https://cdn.jsdelivr.net/npm/quill-cursors@3.1.0/dist/quill-cursors.css" rel="stylesheet">
 </head>
 <body>
     <div class="header">
@@ -27,13 +30,8 @@
         </div>
     </div>
 
-    <!-- 1. Base Quill Editor -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    
-    <!-- 2. NEW: Quill Cursors Plugin for live floating name tags -->
     <script src="https://cdn.jsdelivr.net/npm/quill-cursors@3.1.0/dist/quill-cursors.min.js"></script>
-    
-    <!-- 3. Main Application Logic -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
