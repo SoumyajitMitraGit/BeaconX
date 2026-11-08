@@ -54,5 +54,5 @@ function createClient(editorSelector, clientName, cursorColor) {
 }
 
 // Instantiate with names and unique hex colors for the cursors
-createClient('#editor-1', 'Client A', '#3498db'); 
-createClient('#editor-2', 'Client B', '#e74c3c');
+createClient('#editor-1', 'Soumyajit', '#3498db'); 
+createClient('#editor-2', 'Ahin', '#e74c3c');
