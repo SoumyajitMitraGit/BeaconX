@@ -39,12 +39,14 @@ body {
     color: #888;
 }
 
+/* CRITICAL FIX: overflow: visible prevents the hovering tags from getting chopped off */
 .ql-container {
     flex-grow: 1;
     background-color: #1e1e1e;
     border: 1px solid #333 !important;
     border-radius: 0 0 8px 8px;
     font-size: 16px;
+    overflow: visible !important; 
 }
 
 .ql-toolbar {
@@ -56,30 +58,35 @@ body {
 .ql-fill { fill: #e0e0e0 !important; }
 .ql-picker { color: #e0e0e0 !important; }
 
-/* Canva-Style Collaborative Name Tags - FAILSAFE VERSION */
-.ql-cursor-caret {
-    /* Make the vertical line transparent instead of removing it, so it can still anchor the flag */
-    background-color: transparent !important; 
-}
+
+/* --- Canva-Style Collaborative Name Tags --- */
 
 .ql-cursor-flag {
-    /* Force the flag to always stay visible like Canva, overriding Quill's default auto-fade */
-    opacity: 1 !important; 
-    display: block !important;
-    visibility: visible !important;
-    top: -24px !important; 
     border-radius: 4px !important;
-    padding: 4px 8px !important;
+    padding: 2px 6px !important;
     font-size: 12px !important;
-    font-weight: 600 !important;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4) !important;
+    font-weight: bold !important;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4) !important;
+    
+    /* Force the badge to stay solidly visible */
+    opacity: 1 !important; 
+    visibility: visible !important;
+    
+    /* Safely hover slightly above the text */
+    margin-top: -4px !important; 
 }
 
+/* Hide the old-school triangle pointer */
 .ql-cursor-flag::after {
-    display: none !important; /* Hide the little triangle pointer */
+    display: none !important; 
 }
 
+/* Keep the vertical line, but make it clean and modern */
+.ql-cursor-caret {
+    width: 2px !important; 
+}
+
+/* Ensure the name text inside the badge is bright white */
 .ql-cursor-name {
     color: #ffffff !important;
-    display: block !important;
 }
