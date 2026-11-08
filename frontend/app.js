@@ -5,8 +5,11 @@ import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 const statusElement = document.getElementById('connection-status');
 let connectedClients = 0;
 
-// We added 'clientName' as a parameter to know who is typing
-function createClient(editorSelector, clientName) {
+// Register the cursors plugin with Quill
+Quill.register('modules/cursors', window.QuillCursors);
+
+// Pass in the name and a specific color for each client
+function createClient(editorSelector, clientName, cursorColor) {
     const ydoc = new Y.Doc();
     
     const provider = new WebsocketProvider(
@@ -15,33 +18,25 @@ function createClient(editorSelector, clientName) {
         ydoc
     );
 
+    // 1. Tell Yjs who this user is and what color their cursor should be
+    provider.awareness.setLocalStateField('user', {
+        name: clientName,
+        color: cursorColor
+    });
+
     const quill = new Quill(editorSelector, {
         theme: 'snow',
-        modules: { toolbar: [['bold', 'italic', 'underline'], ['code-block']] }
+        modules: { 
+            toolbar: [['bold', 'italic', 'underline'], ['code-block']],
+            cursors: true // 2. Turn on the live cursors module
+        }
     });
 
-    // 1. Re-enable the real-time character-by-character sync!
     const ytext = ydoc.getText('quill');
+    
+    // 3. The binding automatically syncs both the text AND the cursor positions
     const binding = new QuillBinding(ytext, quill, provider.awareness);
 
-    // 2. Automatically inject the client's name when they press Enter
-    quill.keyboard.addBinding({ key: 13 }, function(range, context) {
-        // Create the prefix (e.g., "\nClient A: ")
-        const prefix = '\n' + clientName + ': ';
-        
-        // Insert it at the current cursor position and make the name bold
-        quill.insertText(range.index, prefix, 'bold', true);
-        
-        // Move the user's cursor to the end of the new prefix so they can start typing
-        quill.setSelection(range.index + prefix.length);
-        
-        // Turn off bold so their actual message is regular text
-        quill.format('bold', false);
-        
-        return false; 
-    });
-
-    // Connection status tracking
     provider.on('status', event => {
         if (event.status === 'connected') {
             connectedClients++;
@@ -59,6 +54,6 @@ function createClient(editorSelector, clientName) {
     });
 }
 
-// Pass the names into the function so it knows how to prefix their messages
-createClient('#editor-1', 'Client A');
-createClient('#editor-2', 'Client B');
+// Instantiate with names and unique hex colors for the cursors
+createClient('#editor-1', 'Soumyajit', '#3498db'); // Blue cursor
+createClient('#editor-2', 'Ahin', '#e74c3c');      // Red cursor
