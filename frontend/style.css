@@ -55,3 +55,34 @@ body {
 .ql-stroke { stroke: #e0e0e0 !important; }
 .ql-fill { fill: #e0e0e0 !important; }
 .ql-picker { color: #e0e0e0 !important; }
+/* Canva-Style Collaborative Name Tags */
+.ql-cursor-caret {
+    /* Hides the default vertical red/blue text line */
+    display: none !important; 
+}
+
+.ql-cursor-flag {
+    /* Pushes the tag directly above the typing area */
+    top: -24px !important; 
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    font-family: 'Segoe UI', Tahoma, sans-serif !important;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4) !important;
+    
+    /* Ensures the tag remains visible and smoothly fades */
+    transition: opacity 0.2s ease-in-out !important;
+    z-index: 100 !important;
+}
+
+/* Removes the default downward-pointing triangle on the quill flag */
+.ql-cursor-flag::after {
+    display: none !important;
+}
+
+.ql-cursor-name {
+    /* Ensures the text inside the badge is perfectly centered */
+    display: block !important;
+    color: #ffffff !important;
+}
