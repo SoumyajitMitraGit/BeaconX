@@ -1,11 +1,9 @@
 import * as Y from 'https://esm.sh/yjs';
 import { WebsocketProvider } from 'https://esm.sh/y-websocket?deps=yjs';
-import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 
 const statusElement = document.getElementById('connection-status');
 let connectedClients = 0;
 
-// Reusable function to create an editor instance
 function createClient(editorSelector) {
     const ydoc = new Y.Doc();
     
@@ -20,9 +18,34 @@ function createClient(editorSelector) {
         modules: { toolbar: [['bold', 'italic', 'underline'], ['code-block']] }
     });
 
-    const binding = new QuillBinding(ydoc.getText('quill'), quill, provider.awareness);
+    // 1. Create a shared Yjs Map to hold the document state instead of a live text binding
+    const sharedData = ydoc.getMap('state');
 
-    // Track connection status
+    // 2. Listen for when another client presses Enter and broadcasts their data
+    sharedData.observe(() => {
+        const incomingDelta = sharedData.get('content');
+        if (incomingDelta) {
+            // Update this editor with the incoming formatted text
+            quill.setContents(incomingDelta);
+        }
+    });
+
+    // 3. Intercept the Enter key to trigger the manual sync
+    quill.keyboard.addBinding({ key: 'Enter' }, function(range, context) {
+        // First, add the visual newline locally so the user can keep typing
+        quill.insertText(range.index, '\n');
+        
+        // Then, grab the entire document contents (including bold/italic formatting)
+        const currentContents = quill.getContents();
+        
+        // Push it to the shared Yjs Map, which instantly broadcasts it to the other client
+        sharedData.set('content', currentContents);
+        
+        // Return false to prevent Quill's default Enter key behavior since we just handled it
+        return false; 
+    });
+
+    // Connection status UI tracking
     provider.on('status', event => {
         if (event.status === 'connected') {
             connectedClients++;
@@ -30,7 +53,6 @@ function createClient(editorSelector) {
             connectedClients--;
         }
         
-        // Only show green if both clients connect successfully
         if (connectedClients > 0) {
             statusElement.innerText = `🟢 ${connectedClients}/2 Clients Connected`;
             statusElement.style.backgroundColor = '#2ecc71';
@@ -41,6 +63,5 @@ function createClient(editorSelector) {
     });
 }
 
-// Instantiate two completely separate clients on the same page
 createClient('#editor-1');
 createClient('#editor-2');
