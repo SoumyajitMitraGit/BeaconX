@@ -23,33 +23,35 @@ function createClient(editorSelector, clientName, cursorColor) {
         color: cursorColor
     });
 
+    // FIX: Bake the Enter key binding directly into the Quill configuration
     const quill = new Quill(editorSelector, {
         theme: 'snow',
         modules: { 
             toolbar: [['bold', 'italic', 'underline'], ['code-block']],
-            cursors: true 
+            cursors: true,
+            keyboard: {
+                bindings: {
+                    stampNameOnEnter: {
+                        key: 13,
+                        handler: function(range, context) {
+                            const prefix = '\n' + clientName + ': ';
+                            
+                            // Use 'this.quill' to reference the editor inside the config
+                            this.quill.insertText(range.index, prefix, 'user');
+                            this.quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
+                            this.quill.setSelection(range.index + prefix.length, 0, 'user');
+                            this.quill.format('bold', false, 'user');
+                            
+                            return false; // Prevent default Enter key behavior
+                        }
+                    }
+                }
+            }
         }
     });
 
     const ytext = ydoc.getText('quill');
     const binding = new QuillBinding(ytext, quill, provider.awareness);
-
-    // NEW: Intercept the Enter key (keycode 13) to permanently stamp the user's name
-    quill.keyboard.addBinding({ key: 13 }, function(range, context) {
-        const prefix = '\n' + clientName + ': ';
-        
-        // Insert the new line and the user's name
-        quill.insertText(range.index, prefix, 'user');
-        
-        // Make the name bold so it stands out
-        quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
-        
-        // Move the cursor to the end of the name and switch back to normal text
-        quill.setSelection(range.index + prefix.length, 0, 'user');
-        quill.format('bold', false, 'user');
-        
-        return false; // Prevent default Enter key behavior
-    });
 
     provider.on('status', event => {
         if (event.status === 'connected') {
