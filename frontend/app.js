@@ -34,32 +34,18 @@ function createClient(editorSelector, clientName, cursorColor) {
     const ytext = ydoc.getText('quill');
     const binding = new QuillBinding(ytext, quill, provider.awareness);
 
-    // 🚨 THE ULTIMATE OVERRIDE: Capture Phase Event Listener 🚨
-    const editorContainer = document.querySelector(editorSelector);
-    editorContainer.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            // STOP Quill from ever seeing the Enter key event
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const range = quill.getSelection();
-            if (!range) return;
-            
-            const prefix = '\n' + clientName + ': ';
-            
-            // Insert the new line and name ('user' flag tells Yjs to sync it)
-            quill.insertText(range.index, prefix, 'user');
-            
-            // Format the name as bold (skip the newline character)
-            quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
-            
-            // Move cursor to the end of the newly inserted name
-            quill.setSelection(range.index + prefix.length, 0, 'user');
-            
-            // Turn off bold for the actual message text
-            quill.format('bold', false, 'user');
+    // 🚨 NEW FEATURE: Automatic Author Color Coding 🚨
+    // Every time the user clicks into the editor, moves their cursor, or hits a key,
+    // we invisibly switch their active font color to match their unique cursor color!
+    quill.on('selection-change', function(range, oldRange, source) {
+        if (range && source === 'user') {
+            quill.format('color', cursorColor, 'silent');
         }
-    }, true); // <-- 'true' enables the Capture Phase, catching the key first!
+    });
+
+    quill.root.addEventListener('keydown', () => {
+        quill.format('color', cursorColor, 'silent');
+    });
 
     provider.on('status', event => {
         if (event.status === 'connected') {
@@ -78,6 +64,6 @@ function createClient(editorSelector, clientName, cursorColor) {
     });
 }
 
-// Instantiate with names and cursor colors
-createClient('#editor-1', 'Soumyajit', '#3498db'); 
-createClient('#editor-2', 'Ahin', '#e74c3c');
+// Instantiate with names and unique hex colors
+createClient('#editor-1', 'Soumyajit', '#3498db'); // Your text will automatically type in Blue
+createClient('#editor-2', 'Ahin', '#e74c3c');      // Ahin's text will automatically type in Red
