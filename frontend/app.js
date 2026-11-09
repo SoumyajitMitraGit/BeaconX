@@ -23,35 +23,37 @@ function createClient(editorSelector, clientName, cursorColor) {
         color: cursorColor
     });
 
-    // FIX: Bake the Enter key binding directly into the Quill configuration
     const quill = new Quill(editorSelector, {
         theme: 'snow',
         modules: { 
             toolbar: [['bold', 'italic', 'underline'], ['code-block']],
-            cursors: true,
-            keyboard: {
-                bindings: {
-                    stampNameOnEnter: {
-                        key: 13,
-                        handler: function(range, context) {
-                            const prefix = '\n' + clientName + ': ';
-                            
-                            // Use 'this.quill' to reference the editor inside the config
-                            this.quill.insertText(range.index, prefix, 'user');
-                            this.quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
-                            this.quill.setSelection(range.index + prefix.length, 0, 'user');
-                            this.quill.format('bold', false, 'user');
-                            
-                            return false; // Prevent default Enter key behavior
-                        }
-                    }
-                }
-            }
+            cursors: true 
         }
     });
 
     const ytext = ydoc.getText('quill');
     const binding = new QuillBinding(ytext, quill, provider.awareness);
+
+    // BULLETPROOF FIX: Use a native browser event listener to hijack the Enter key
+    quill.root.addEventListener('keydown', (e) => {
+        // Check if the Enter key is pressed (without the Shift key)
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Instantly stop Quill from making a normal blank line
+            
+            const range = quill.getSelection(true);
+            const prefix = '\n' + clientName + ': ';
+            
+            // Insert the new line and the user's name
+            quill.insertText(range.index, prefix, 'user');
+            
+            // Make the name bold so it stands out
+            quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
+            
+            // Move the cursor to the end of the name and switch back to normal text
+            quill.setSelection(range.index + prefix.length, 0, 'user');
+            quill.format('bold', false, 'user');
+        }
+    });
 
     provider.on('status', event => {
         if (event.status === 'connected') {
