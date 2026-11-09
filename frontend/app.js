@@ -31,29 +31,33 @@ function createClient(editorSelector, clientName, cursorColor) {
         }
     });
 
-    const ytext = ydoc.getText('quill');
-    const binding = new QuillBinding(ytext, quill, provider.awareness);
-
-    // BULLETPROOF FIX: Use a native browser event listener to hijack the Enter key
-    quill.root.addEventListener('keydown', (e) => {
-        // Check if the Enter key is pressed (without the Shift key)
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // Instantly stop Quill from making a normal blank line
-            
-            const range = quill.getSelection(true);
+    // 🚨 THE BULLETPROOF FIX 🚨
+    // We define our custom Enter key behavior...
+    const customEnterBinding = {
+        key: 13, // 13 is the keycode for Enter
+        shiftKey: false, // This allows you to still use Shift+Enter for a normal blank line!
+        handler: function(range, context) {
             const prefix = '\n' + clientName + ': ';
             
-            // Insert the new line and the user's name
             quill.insertText(range.index, prefix, 'user');
-            
-            // Make the name bold so it stands out
             quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
-            
-            // Move the cursor to the end of the name and switch back to normal text
             quill.setSelection(range.index + prefix.length, 0, 'user');
             quill.format('bold', false, 'user');
+            
+            return false; // Kills Quill's default Enter behavior
         }
-    });
+    };
+
+    // ...and then we forcibly shove it into the absolute FRONT (unshift) 
+    // of Quill's internal keyboard event array so it fires first!
+    if (quill.keyboard.bindings[13]) {
+        quill.keyboard.bindings[13].unshift(customEnterBinding);
+    } else {
+        quill.keyboard.bindings[13] = [customEnterBinding];
+    }
+
+    const ytext = ydoc.getText('quill');
+    const binding = new QuillBinding(ytext, quill, provider.awareness);
 
     provider.on('status', event => {
         if (event.status === 'connected') {
