@@ -34,7 +34,7 @@ function createClient(editorSelector, clientName, cursorColor) {
     const ytext = ydoc.getText('quill');
     const binding = new QuillBinding(ytext, quill, provider.awareness);
 
-    // NEW: Intercept the Enter key to permanently stamp the user's name
+    // NEW: Intercept the Enter key (keycode 13) to permanently stamp the user's name
     quill.keyboard.addBinding({ key: 13 }, function(range, context) {
         const prefix = '\n' + clientName + ': ';
         
