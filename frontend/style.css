@@ -1,110 +1,152 @@
 body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #09090b; /* Deep Obsidian */
+    color: #e4e4e7;
+    font-family: 'Inter', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 32px 48px;
 }
 
+/* --- Header & Typography --- */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #27272a;
+    padding-bottom: 16px;
 }
 
+.header h2 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #ffffff, #a1a1aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Pulsing Live Status Badge --- */
 #connection-status {
-    padding: 6px 12px;
-    border-radius: 20px;
-    background-color: #f39c12;
-    color: #111;
-    font-weight: bold;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    color: #a1a1aa;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-/* Split screen layout */
+.status-active::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    animation: pulse 2s infinite;
+}
+
+.status-offline::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ef4444;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* --- Split Screen Workspace --- */
 .split-container {
     display: flex;
-    gap: 20px;
-    height: 70vh;
+    gap: 32px;
+    height: 75vh;
 }
 
 .client-window {
     flex: 1;
     display: flex;
     flex-direction: column;
+    background-color: #18181b; /* Sleek card background */
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
 }
 
 .client-window h3 {
-    margin: 0 0 10px 0;
-    color: #888;
+    margin: 0;
+    padding: 16px 20px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #71717a;
+    background-color: #0f0f11;
+    border-bottom: 1px solid #27272a;
 }
 
-/* CRITICAL FIX: overflow: visible prevents the hovering tags from getting chopped off */
+/* --- Editor Overhaul --- */
+.ql-toolbar {
+    background-color: #18181b !important;
+    border: none !important;
+    border-bottom: 1px solid #27272a !important;
+    padding: 12px 20px !important;
+}
+
 .ql-container {
     flex-grow: 1;
-    background-color: #1e1e1e;
-    border: 1px solid #333 !important;
-    border-radius: 0 0 8px 8px;
-    font-size: 16px;
+    background-color: #18181b !important;
+    border: none !important;
+    font-size: 15px !important;
+    font-family: 'Inter', sans-serif !important;
+    color: #e4e4e7 !important;
     overflow: visible !important; 
 }
 
-.ql-toolbar {
-    background-color: #2c2c2c;
-    border: 1px solid #333 !important;
-    border-radius: 8px 8px 0 0;
-}
-.ql-stroke { stroke: #e0e0e0 !important; }
-.ql-fill { fill: #e0e0e0 !important; }
-.ql-picker { color: #e0e0e0 !important; }
+.ql-editor { padding: 24px !important; line-height: 1.6; }
+.ql-stroke { stroke: #a1a1aa !important; }
+.ql-fill { fill: #a1a1aa !important; }
+.ql-picker { color: #a1a1aa !important; }
+.ql-active .ql-stroke { stroke: #ffffff !important; } 
 
-
-/* --- Canva-Style Collaborative Name Tags --- */
-
-.ql-cursor-flag {
-    border-radius: 4px !important;
-    padding: 2px 6px !important;
-    font-size: 12px !important;
-    font-weight: bold !important;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4) !important;
-    
-    /* Force the badge to stay solidly visible */
-    opacity: 1 !important; 
-    visibility: visible !important;
-    
-    /* Safely hover slightly above the text */
-    margin-top: -4px !important; 
-}
-
-/* Hide the old-school triangle pointer */
-.ql-cursor-flag::after {
-    display: none !important; 
-}
-
-/* Keep the vertical line, but make it clean and modern */
-.ql-cursor-caret {
-    width: 2px !important; 
-}
-
-/* Ensure the name text inside the badge is bright white */
-.ql-cursor-name {
-    color: #ffffff !important;
-}
-/* --- Custom Stamp Toolbar Button --- */
+/* --- Custom Stamp Button --- */
 .ql-toolbar .ql-stamp {
     width: auto !important;
-    padding: 0 8px !important;
-    font-weight: bold;
-    color: #e0e0e0;
-    border-radius: 4px;
+    padding: 2px 10px !important;
+    font-weight: 500;
+    font-size: 12px;
+    color: #e4e4e7;
+    background-color: #27272a;
+    border-radius: 6px;
     transition: background-color 0.2s;
 }
 
-.ql-toolbar .ql-stamp::before {
-    content: "✍️ Stamp Name";
-    font-size: 13px;
+.ql-toolbar .ql-stamp::before { content: "✍️ Stamp Name"; }
+.ql-toolbar .ql-stamp:hover { background-color: #3f3f46; }
+
+/* --- Canva Cursors --- */
+.ql-cursor-flag {
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    font-family: 'Inter', sans-serif !important;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4) !important;
+    opacity: 1 !important; 
+    visibility: visible !important;
+    margin-top: -4px !important; 
 }
 
-.ql-toolbar .ql-stamp:hover {
-    background-color: #444;
-}
+.ql-cursor-flag::after { display: none !important; }
+.ql-cursor-caret { width: 2px !important; }
+.ql-cursor-name { color: #ffffff !important; }

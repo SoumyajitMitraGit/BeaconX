@@ -29,15 +29,12 @@ function createClient(editorSelector, clientName, cursorColor) {
                     ['bold', 'italic', 'underline'], 
                     [{ 'color': [] }], 
                     ['code-block'],
-                    ['stamp'] // 🚨 NEW: Custom Toolbar Button
+                    ['stamp'] 
                 ],
                 handlers: {
-                    // 🚨 NEW: Official API handler for our custom button
                     'stamp': function() {
                         const range = this.quill.getSelection(true);
                         const prefix = '\n' + clientName + ': ';
-                        
-                        // Safely insert text and format it using Quill's own engine
                         this.quill.insertText(range.index, prefix, 'user');
                         this.quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
                         this.quill.setSelection(range.index + prefix.length, 0, 'user');
@@ -51,6 +48,7 @@ function createClient(editorSelector, clientName, cursorColor) {
     const ytext = ydoc.getText('quill');
     new QuillBinding(ytext, quill, provider.awareness);
 
+    // Modern UI status update
     provider.on('status', event => {
         if (event.status === 'connected') {
             connectedClients++;
@@ -59,14 +57,15 @@ function createClient(editorSelector, clientName, cursorColor) {
         }
         
         if (connectedClients > 0) {
-            statusElement.innerText = `🟢 ${connectedClients}/2 Clients Connected`;
-            statusElement.style.backgroundColor = '#2ecc71';
+            statusElement.innerText = `${connectedClients}/2 Connected`;
+            statusElement.className = 'status-active';
         } else {
-            statusElement.innerText = '🔴 Disconnected';
-            statusElement.style.backgroundColor = '#e74c3c';
+            statusElement.innerText = 'Disconnected';
+            statusElement.className = 'status-offline';
         }
     });
 }
 
-createClient('#editor-1', 'Soumyajit', '#3498db'); 
-createClient('#editor-2', 'Ahin', '#e74c3c');
+// Replaced the names with Client A and Client B
+createClient('#editor-1', 'Client A', '#3498db'); 
+createClient('#editor-2', 'Client B', '#e74c3c');
