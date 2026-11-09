@@ -90,3 +90,36 @@ body {
 .ql-cursor-name {
     color: #ffffff !important;
 }
+/* --- Live Activity Log UI --- */
+.chat-container {
+    margin-top: 12px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+}
+
+.chat-log {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 14px;
+    font-family: monospace;
+}
+
+.chat-input {
+    background-color: #252525;
+    border: none;
+    border-top: 1px solid #333;
+    color: white;
+    padding: 12px;
+    border-radius: 0 0 8px 8px;
+    outline: none;
+    font-family: inherit;
+}
+
+.chat-input:focus {
+    background-color: #2c2c2c;
+}
