@@ -31,33 +31,35 @@ function createClient(editorSelector, clientName, cursorColor) {
         }
     });
 
-    // 🚨 THE BULLETPROOF FIX 🚨
-    // We define our custom Enter key behavior...
-    const customEnterBinding = {
-        key: 13, // 13 is the keycode for Enter
-        shiftKey: false, // This allows you to still use Shift+Enter for a normal blank line!
-        handler: function(range, context) {
-            const prefix = '\n' + clientName + ': ';
-            
-            quill.insertText(range.index, prefix, 'user');
-            quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
-            quill.setSelection(range.index + prefix.length, 0, 'user');
-            quill.format('bold', false, 'user');
-            
-            return false; // Kills Quill's default Enter behavior
-        }
-    };
-
-    // ...and then we forcibly shove it into the absolute FRONT (unshift) 
-    // of Quill's internal keyboard event array so it fires first!
-    if (quill.keyboard.bindings[13]) {
-        quill.keyboard.bindings[13].unshift(customEnterBinding);
-    } else {
-        quill.keyboard.bindings[13] = [customEnterBinding];
-    }
-
     const ytext = ydoc.getText('quill');
     const binding = new QuillBinding(ytext, quill, provider.awareness);
+
+    // 🚨 THE ULTIMATE OVERRIDE: Capture Phase Event Listener 🚨
+    const editorContainer = document.querySelector(editorSelector);
+    editorContainer.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            // STOP Quill from ever seeing the Enter key event
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const range = quill.getSelection();
+            if (!range) return;
+            
+            const prefix = '\n' + clientName + ': ';
+            
+            // Insert the new line and name ('user' flag tells Yjs to sync it)
+            quill.insertText(range.index, prefix, 'user');
+            
+            // Format the name as bold (skip the newline character)
+            quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
+            
+            // Move cursor to the end of the newly inserted name
+            quill.setSelection(range.index + prefix.length, 0, 'user');
+            
+            // Turn off bold for the actual message text
+            quill.format('bold', false, 'user');
+        }
+    }, true); // <-- 'true' enables the Capture Phase, catching the key first!
 
     provider.on('status', event => {
         if (event.status === 'connected') {
