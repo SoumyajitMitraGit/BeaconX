@@ -90,3 +90,21 @@ body {
 .ql-cursor-name {
     color: #ffffff !important;
 }
+/* --- Custom Stamp Toolbar Button --- */
+.ql-toolbar .ql-stamp {
+    width: auto !important;
+    padding: 0 8px !important;
+    font-weight: bold;
+    color: #e0e0e0;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.ql-toolbar .ql-stamp::before {
+    content: "✍️ Stamp Name";
+    font-size: 13px;
+}
+
+.ql-toolbar .ql-stamp:hover {
+    background-color: #444;
+}

@@ -5,7 +5,6 @@ import { QuillBinding } from 'https://esm.sh/y-quill?deps=yjs';
 const statusElement = document.getElementById('connection-status');
 let connectedClients = 0;
 
-// Register the cursors plugin
 Quill.register('modules/cursors', window.QuillCursors);
 
 function createClient(editorSelector, clientName, cursorColor) {
@@ -17,7 +16,6 @@ function createClient(editorSelector, clientName, cursorColor) {
         ydoc
     );
 
-    // Keep the Canva-style floating cursors active
     provider.awareness.setLocalStateField('user', {
         name: clientName,
         color: cursorColor
@@ -26,26 +24,32 @@ function createClient(editorSelector, clientName, cursorColor) {
     const quill = new Quill(editorSelector, {
         theme: 'snow',
         modules: { 
-            toolbar: [['bold', 'italic', 'underline'], ['code-block']],
+            toolbar: {
+                container: [
+                    ['bold', 'italic', 'underline'], 
+                    [{ 'color': [] }], 
+                    ['code-block'],
+                    ['stamp'] // 🚨 NEW: Custom Toolbar Button
+                ],
+                handlers: {
+                    // 🚨 NEW: Official API handler for our custom button
+                    'stamp': function() {
+                        const range = this.quill.getSelection(true);
+                        const prefix = '\n' + clientName + ': ';
+                        
+                        // Safely insert text and format it using Quill's own engine
+                        this.quill.insertText(range.index, prefix, 'user');
+                        this.quill.formatText(range.index + 1, prefix.length - 1, 'bold', true, 'user');
+                        this.quill.setSelection(range.index + prefix.length, 0, 'user');
+                    }
+                }
+            },
             cursors: true 
         }
     });
 
     const ytext = ydoc.getText('quill');
-    const binding = new QuillBinding(ytext, quill, provider.awareness);
-
-    // 🚨 NEW FEATURE: Automatic Author Color Coding 🚨
-    // Every time the user clicks into the editor, moves their cursor, or hits a key,
-    // we invisibly switch their active font color to match their unique cursor color!
-    quill.on('selection-change', function(range, oldRange, source) {
-        if (range && source === 'user') {
-            quill.format('color', cursorColor, 'silent');
-        }
-    });
-
-    quill.root.addEventListener('keydown', () => {
-        quill.format('color', cursorColor, 'silent');
-    });
+    new QuillBinding(ytext, quill, provider.awareness);
 
     provider.on('status', event => {
         if (event.status === 'connected') {
@@ -64,6 +68,5 @@ function createClient(editorSelector, clientName, cursorColor) {
     });
 }
 
-// Instantiate with names and unique hex colors
-createClient('#editor-1', 'Soumyajit', '#3498db'); // Your text will automatically type in Blue
-createClient('#editor-2', 'Ahin', '#e74c3c');      // Ahin's text will automatically type in Red
+createClient('#editor-1', 'Soumyajit', '#3498db'); 
+createClient('#editor-2', 'Ahin', '#e74c3c');
